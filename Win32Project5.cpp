@@ -6,11 +6,11 @@
 #define MAX_LOADSTRING 100
 #define FILENAMESZ 260
 
-// ГѓГ«Г®ГЎГ Г«ГјГ­Г»ГҐ ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г»ГҐ:
-HINSTANCE hInst;								// ГІГҐГЄГіГ№ГЁГ© ГЅГЄГ§ГҐГ¬ГЇГ«ГїГ°
-TCHAR szTitle[MAX_LOADSTRING];					// Г’ГҐГЄГ±ГІ Г±ГІГ°Г®ГЄГЁ Г§Г ГЈГ®Г«Г®ГўГЄГ 
-TCHAR szWindowClass[MAX_LOADSTRING];			// ГЁГ¬Гї ГЄГ«Г Г±Г±Г  ГЈГ«Г ГўГ­Г®ГЈГ® Г®ГЄГ­Г 
-// ГЋГІГЇГ°Г ГўГЁГІГј Г®ГЎГєГїГўГ«ГҐГ­ГЁГї ГґГіГ­ГЄГ¶ГЁГ©, ГўГЄГ«ГѕГ·ГҐГ­Г­Г»Гµ Гў ГЅГІГ®ГІ Г¬Г®Г¤ГіГ«Гј ГЄГ®Г¤Г :
+// Глобальные переменные:
+HINSTANCE hInst;								// текущий экземпляр
+TCHAR szTitle[MAX_LOADSTRING];					// Текст строки заголовка
+TCHAR szWindowClass[MAX_LOADSTRING];			// имя класса главного окна
+// Отправить объявления функций, включенных в этот модуль кода:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -20,13 +20,13 @@ INT_PTR CALLBACK	Exit(HWND, UINT, WPARAM, LPARAM);
 RECT rect_1;
 HWND hWnd;
 DWORD Ex=0;
- 
+
 HKEY hK;
 DWORD hu;
-TCHAR szFile[FILENAMESZ];//ГЎГіГґГҐГ° Г¤Г«Гї ГЁГ¬ГҐГ­ГЁ ГґГ Г©Г«Г 
+TCHAR szFile[FILENAMESZ];//буфер для имени файла
 
-int flag = 0;//Г·ГІГ®ГЎГ» SAVE ГЁ SAVEAS ГЎГ»Г«Г® Г­Г  ГЄГ°Г Г±Г®ГІГҐ
-int flag2 = 1;//Г·ГІГ®ГЎГ» Г°ГҐГҐГ±ГІГ° ГЁ ID_OPEN 
+int flag = 0;//чтобы SAVE и SAVEAS было на красоте
+int flag2 = 1;//чтобы реестр и ID_OPEN 
 
 HANDLE hf;
 OPENFILENAME yo;
@@ -52,16 +52,16 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: Г°Г Г§Г¬ГҐГ±ГІГЁГІГҐ ГЄГ®Г¤ Г§Г¤ГҐГ±Гј.
+ 	// TODO: разместите код здесь.
 	MSG msg;
 	HACCEL hAccelTable;
 
-	// Г€Г­ГЁГ¶ГЁГ Г«ГЁГ§Г Г¶ГЁГї ГЈГ«Г®ГЎГ Г«ГјГ­Г»Гµ Г±ГІГ°Г®ГЄ
+	// Инициализация глобальных строк
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_WIN32PROJECT5, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
-	// Г‚Г»ГЇГ®Г«Г­ГЁГІГј ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§Г Г¶ГЁГѕ ГЇГ°ГЁГ«Г®Г¦ГҐГ­ГЁГї:
+	// Выполнить инициализацию приложения:
 	if (!InitInstance (hInstance, nCmdShow))
 	{
 		return FALSE;
@@ -69,7 +69,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT5));
 
-	// Г–ГЁГЄГ« Г®Г±Г­Г®ГўГ­Г®ГЈГ® Г±Г®Г®ГЎГ№ГҐГ­ГЁГї:
+	// Цикл основного сообщения:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		if (!TranslateAccelerator(hWnd, hAccelTable, &msg))
@@ -85,9 +85,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 
 //
-//  Г”Г“ГЌГЉГ–Г€Гџ: MyRegisterClass()
+//  ФУНКЦИЯ: MyRegisterClass()
 //
-//  ГЌГЂГ‡ГЌГЂГ—Г…ГЌГ€Г…: Г°ГҐГЈГЁГ±ГІГ°ГЁГ°ГіГҐГІ ГЄГ«Г Г±Г± Г®ГЄГ­Г .
+//  НАЗНАЧЕНИЕ: регистрирует класс окна.
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
@@ -273,14 +273,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 					   htbar = CreateToolbarEx(hWnd,
 			WS_CHILD | WS_BORDER | WS_VISIBLE | TBSTYLE_WRAPABLE | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_ADJUSTABLE,
-						-  1,         // ГЁГ¤ГҐГ­ГІГЁГґГЁГЄГ ГІГ®Г° Г®Г°ГЈГ Г­Г  Toolbar 
-						   7,                   // ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЇГЁГЄГІГ®ГЈГ°Г Г¬Г¬
-						   hInst,               // ГЁГ¤ГҐГ­ГІГЁГґГЁГЄГ ГІГ®Г° ГЇГ°ГЁГ«Г®Г¦ГҐГ­ГЁГї
-						   /*IDB_BITMAP2*/	 IDD_TI_1, // ГЁГ¤ГҐГ­ГІГЁГґГЁГЄГ ГІГ®Г° ГЎГЁГІГ®ГўГ®ГЈГ® ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГї ГЄГ­Г®ГЇГ®ГЄ
-						   (LPCTBBUTTON)&tbButtons, // Г Г¤Г°ГҐГ± Г®ГЇГЁГ±Г Г­ГЁГї ГЄГ­Г®ГЇГ®ГЄ
-						   7,                  // ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЄГ­Г®ГЇГ®ГЄ
-						   24, 24,              // ГёГЁГ°ГЁГ­Г  ГЁ ГўГ»Г±Г®ГІГ  ГЄГ­Г®ГЇГ®ГЄ
-						   24, 24,              // ГёГЁГ°ГЁГ­Г  ГЁ ГўГ»Г±Г®ГІГ  ГЇГЁГЄГІГ®ГЈГ°Г Г¬Г¬
+						-  1,         // идентификатор органа Toolbar 
+						   7,                   // количество пиктограмм
+						   hInst,               // идентификатор приложения
+						   /*IDB_BITMAP2*/	 IDD_TI_1, // идентификатор битового изображения кнопок
+						   (LPCTBBUTTON)&tbButtons, // адрес описания кнопок
+						   7,                  // количество кнопок
+						   24, 24,              // ширина и высота кнопок
+						   24, 24,              // ширина и высота пиктограмм
 						   sizeof(TBBUTTON));
 					/*   (hwnd, WS_CHILD | WS_VISIBLE | CCS_TOP, 1,
 						   0, HINST_COMMCTRL, IDB_STD_SMALL_COLOR, tbb, 3, 0, 0, 0, 0, sizeof(TBBUTTON));*/
@@ -366,7 +366,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 	MINMAXINFO *pInfo = (MINMAXINFO *)lParam;
 	POINT Min = { 400, 200 };
-	pInfo->ptMinTrackSize = Min; // Г“Г±ГІГ Г­Г®ГўГЁГ«ГЁ Г¬ГЁГ­ГЁГ¬Г Г«ГјГ­Г»Г© Г°Г Г§Г¬ГҐГ°
+	pInfo->ptMinTrackSize = Min; // Установили минимальный размер
 	break;
 	}
 	case WM_NOTIFY:
@@ -484,7 +484,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 }
 
-// ГЋГЎГ°Г ГЎГ®ГІГ·ГЁГЄ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ© Г¤Г«Гї Г®ГЄГ­Г  "ГЋ ГЇГ°Г®ГЈГ°Г Г¬Г¬ГҐ".
+// Обработчик сообщений для окна "О программе".
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
