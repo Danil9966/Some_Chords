@@ -1,4 +1,4 @@
-
+﻿
 #include "stdafx.h"
 #include "Win32Project5.h"
 #include "Windowsx.h"
@@ -6,11 +6,11 @@
 #define MAX_LOADSTRING 100
 #define FILENAMESZ 260
 
-// Ãëîáàëüíûå ïåðåìåííûå:
-HINSTANCE hInst;								// òåêóùèé ýêçåìïëÿð
-TCHAR szTitle[MAX_LOADSTRING];					// Òåêñò ñòðîêè çàãîëîâêà
-TCHAR szWindowClass[MAX_LOADSTRING];			// èìÿ êëàññà ãëàâíîãî îêíà
-// Îòïðàâèòü îáúÿâëåíèÿ ôóíêöèé, âêëþ÷åííûõ â ýòîò ìîäóëü êîäà:
+// Глобальные переменные:
+HINSTANCE hInst;								// текущий экземпляр
+TCHAR szTitle[MAX_LOADSTRING];					// Текст строки заголовка
+TCHAR szWindowClass[MAX_LOADSTRING];			// имя класса главного окна
+// Отправить объявления функций, включенных в этот модуль кода:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -20,13 +20,13 @@ INT_PTR CALLBACK	Exit(HWND, UINT, WPARAM, LPARAM);
 RECT rect_1;
 HWND hWnd;
 DWORD Ex=0;
- 
+
 HKEY hK;
 DWORD hu;
-TCHAR szFile[FILENAMESZ];//áóôåð äëÿ èìåíè ôàéëà
+TCHAR szFile[FILENAMESZ];//буфер для имени файла
 
-int flag = 0;//÷òîáû SAVE è SAVEAS áûëî íà êðàñîòå
-int flag2 = 1;//÷òîáû ðååñòð è ID_OPEN 
+int flag = 0;//чтобы SAVE и SAVEAS было на красоте
+int flag2 = 1;//чтобы реестр и ID_OPEN 
 
 HANDLE hf;
 OPENFILENAME yo;
@@ -52,16 +52,16 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: ðàçìåñòèòå êîä çäåñü.
+ 	// TODO: разместите код здесь.
 	MSG msg;
 	HACCEL hAccelTable;
 
-	// Èíèöèàëèçàöèÿ ãëîáàëüíûõ ñòðîê
+	// Инициализация глобальных строк
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_WIN32PROJECT5, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
-	// Âûïîëíèòü èíèöèàëèçàöèþ ïðèëîæåíèÿ:
+	// Выполнить инициализацию приложения:
 	if (!InitInstance (hInstance, nCmdShow))
 	{
 		return FALSE;
@@ -69,7 +69,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT5));
 
-	// Öèêë îñíîâíîãî ñîîáùåíèÿ:
+	// Цикл основного сообщения:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		if (!TranslateAccelerator(hWnd, hAccelTable, &msg))
@@ -85,9 +85,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 
 //
-//  ÔÓÍÊÖÈß: MyRegisterClass()
+//  ФУНКЦИЯ: MyRegisterClass()
 //
-//  ÍÀÇÍÀ×ÅÍÈÅ: ðåãèñòðèðóåò êëàññ îêíà.
+//  НАЗНАЧЕНИЕ: регистрирует класс окна.
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
@@ -120,7 +120,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; 
    InitCommonControls();
 
-   RegCreateKeyEx(HKEY_CURRENT_USER, _T("SOFTWARE\\YobaCorp\\notpad"), 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hK, &hu);
+   RegCreateKeyEx(HKEY_CURRENT_USER, _T("SOFTWARE\\Danil9966\\notpad"), 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hK, &hu);
    flag2 = RegQueryValueEx(hK, _T("FileName"), NULL, NULL, (LPBYTE)szFile, &fNameSize);
    if (szFile[0] == _T('\0'))flag2 = 2;
    regFlag=RegQueryValueEx(hK, _T("YOSO"), NULL, NULL, (LPBYTE)&rect, &lpcbData);
@@ -140,10 +140,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    yo.lStructSize = sizeof(yo);
    yo.hwndOwner = hWnd;
    yo.lpstrFile = szFile;
-   // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-   // use the contents of szFile to initialize itself.
    yo.nMaxFile = sizeof(szFile);
-   yo.lpstrFilter = L"All\0*.*\0Text\0*.TXT\0";
+   yo.lpstrFilter = L"Text files(*.txt)\0";
    yo.nFilterIndex = 1;
    yo.lpstrFileTitle = NULL;
    yo.nMaxFileTitle = NULL;
@@ -273,14 +271,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 					   htbar = CreateToolbarEx(hWnd,
 			WS_CHILD | WS_BORDER | WS_VISIBLE | TBSTYLE_WRAPABLE | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_ADJUSTABLE,
-						-  1,         // èäåíòèôèêàòîð îðãàíà Toolbar 
-						   7,                   // êîëè÷åñòâî ïèêòîãðàìì
-						   hInst,               // èäåíòèôèêàòîð ïðèëîæåíèÿ
-						   /*IDB_BITMAP2*/	 IDD_TI_1, // èäåíòèôèêàòîð áèòîâîãî èçîáðàæåíèÿ êíîïîê
-						   (LPCTBBUTTON)&tbButtons, // àäðåñ îïèñàíèÿ êíîïîê
-						   7,                  // êîëè÷åñòâî êíîïîê
-						   24, 24,              // øèðèíà è âûñîòà êíîïîê
-						   24, 24,              // øèðèíà è âûñîòà ïèêòîãðàìì
+						-  1,         // идентификатор органа Toolbar 
+						   7,                   // количество пиктограмм
+						   hInst,               // идентификатор приложения
+						   /*IDB_BITMAP2*/	 IDD_TI_1, // идентификатор битового изображения кнопок
+						   (LPCTBBUTTON)&tbButtons, // адрес описания кнопок
+						   7,                  // количество кнопок
+						   24, 24,              // ширина и высота кнопок
+						   24, 24,              // ширина и высота пиктограмм
 						   sizeof(TBBUTTON));
 					/*   (hwnd, WS_CHILD | WS_VISIBLE | CCS_TOP, 1,
 						   0, HINST_COMMCTRL, IDB_STD_SMALL_COLOR, tbb, 3, 0, 0, 0, 0, sizeof(TBBUTTON));*/
@@ -366,7 +364,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 	MINMAXINFO *pInfo = (MINMAXINFO *)lParam;
 	POINT Min = { 400, 200 };
-	pInfo->ptMinTrackSize = Min; // Óñòàíîâèëè ìèíèìàëüíûé ðàçìåð
+	pInfo->ptMinTrackSize = Min; // Установили минимальный размер
 	break;
 	}
 	case WM_NOTIFY:
@@ -484,7 +482,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 }
 
-// Îáðàáîò÷èê ñîîáùåíèé äëÿ îêíà "Î ïðîãðàììå".
+// Обработчик сообщений для окна "О программе".
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
